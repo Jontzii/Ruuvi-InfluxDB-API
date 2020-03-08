@@ -1,0 +1,19 @@
+{
+  "name": "ruuviapi",
+  "version": "1.0.0",
+  "description": "REST API that returns values from Ruuvi DB",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jontzii/RuuviAPI.git"
+  },
+  "author": "Joonas Hiltunen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Jontzii/RuuviAPI/issues"
+  },
+  "homepage": "https://github.com/Jontzii/RuuviAPI#readme"
+}
