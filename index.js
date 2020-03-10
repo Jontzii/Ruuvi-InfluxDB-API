@@ -202,6 +202,21 @@ app.get("/weather/apiv1", (req, res, next) => {
 	});
 });
 
+app.get("/weather/apiv1/latest", (req, res, next) => {
+	var key = req.query.api_key;  // API key
+
+	checkAPIKey(key, function (api_result, pass, length_limit) {
+		if (pass == true) {
+			GenerateResponse("1", "DESC", "", api_result, function(JSON_res) {
+				res.status(200).type('application/json').json(JSON_res);
+			});
+		}
+		else {
+			res.status(401).send('Unauthorized');
+		}
+	})
+});
+
 app.post('/', function (req, res) {
 	res.status(401).send('Unauthorized');
 });

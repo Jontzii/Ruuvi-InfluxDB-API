@@ -3,6 +3,7 @@ API that returns values from Influx DB which contains meteorological data measur
 
 ## URL
 data.jontzi.com/weather/apiv1
+data.jontzi.com/weather/apiv1/latest
 
 ## API Key
 An API key is required to make any calls. Calls made without proper key will return HTTP 401 Unauthorized.
@@ -40,6 +41,9 @@ Returns every measured value from now - 10h until now - 2h. Results are sorted f
 
 data.jontzi.com/weather/apiv1?api_key=xx&limit=20
 Returns 20 latest measurements sorted from new to old.
+
+data.jontzi.com/weather/apiv1/latest?api_key=xx
+Returns latest measured data.
 
 ## Dependecies
 - ExpressJS
