@@ -10,7 +10,8 @@ var api_con = mysql.createConnection({
   host: process.env.SQL_DB_HOST,
   user: process.env.SQL_DB_USER,
   password: process.env.SQL_DB_PASSWORD,
-  database: process.env.SQL_DB_DATABASE
+  database: process.env.SQL_DB_DATABASE,
+  port: process.env.SQL_DB_PORT
 });
 
 var influx_client = new Influx.InfluxDB({
@@ -76,35 +77,34 @@ function CheckParameters(limit, sortBy, from, to, length_limit, callback) {
 	// Check limit
 	if (limit != {} && limit != null) {
 		// Limit is defined
-
-		if (Number.isInteger(limit)) {
-			// Limit is integer
+		if (Number.isInteger(parseInt(limit)) && !Array.isArray(limit)) {
+			// Limit is integer && not array
 
 			if (length_limit != null && limit > length_limit) limit = length_limit;
-			
-			if (length_limit == null && limit < -1) limit = -1;
-			else if (length_limit != null && limit < 0) limit = 0;
-			
+
+			if (length_limit == null && limit <= 0) limit = 0;
+			else if (length_limit != null && limit < 1) limit = 1;
 		} else {
 			// Limit is not integer
-			// Assign value of 0
-			limit = 0;
+			// Assign value of 1
+			limit = 1;
 		}
 	} else {
 		// Limit is not defined
 		// Assign default value
-		
-		if (length_limit == null) limit = -1
-		else limit = 1
+		limit = 1
 	}
 
 	// Check sort
-	if (sortBy != {} && sortBy != null) {
+	if (sortBy != {} && sortBy != null && Array.isArray(sortBy)) {
+		// Sort is defined and is not array
 
 		if (sortBy.toUpperCase() != "ASC") sortBy = "DESC";
 		else sortBy = "ASC";
 
 	} else {
+		// Sort is not defined or is a array
+		// Default value
 		sortBy = "DESC";
 	}
 
@@ -113,31 +113,36 @@ function CheckParameters(limit, sortBy, from, to, length_limit, callback) {
 
 	var durations = ["s", "m", "h", "d", "w"];
 
-	var fromPass = false;
-	var toPass = false;
+	var fromPass = false;  // Add from to where?
+	var toPass = false;  // Add to to where?
 
-	if (from != {} && from != null) {
+	if (from != {} && from != null && !Array.isArray(from)) {
+		// From is defined and is not array
 		time_from = parseInt(from)
 		duration_from = from.substr(from.length - 1, 1);
 
 		if (Number.isInteger(time_from) && durations.includes(duration_from)) {
+			// From time and duration modifier are correct
 			time_from = time_from * Math.sign(time_from);
 			from = time_from + duration_from;
 			fromPass = true;
 		}
 	}
 
-	if (to != {} && to != null) {
+	if (to != {} && to != null && !Array.isArray(to)) {
+		// To is defined and is not array
 		time_to = parseInt(to)
 		duration_to = to.substr(to.length - 1, 1);
 
 		if (Number.isInteger(time_to) && durations.includes(duration_to)) {
+			// To time and duration modifier are correct
 			time_to = time_to * Math.sign(time_to);
 			to = time_to + duration_to;
 			toPass = true;
 		}
 	}
 
+	// Form where clause
 	where = "";
 
 	if (fromPass && toPass)
@@ -176,7 +181,7 @@ function GetResultsFromInflux(limit, sortBy, where, callback) {
 	influx_client.query(influx_query).then(data => {
 		callback(data);
 	}).catch(error => {
-		console.log(error);
+		//console.log(error);
 	});
 }
 
@@ -193,11 +198,20 @@ function GenerateResponse(limit, sortBy, where, api_result, callback) {
 
 	GetResultsFromInflux(limit, sortBy, where, function(measurements) {
 		let length = limit;
+		let ts = Date.now();
+		let date_ob = new Date(ts);
+		let date = 
+			date_ob.getUTCFullYear() + "-" + 
+			(date_ob.getUTCMonth() + 1) + "-" + 
+			date_ob.getUTCDate() + " " +
+			date_ob.getUTCHours() + ":" +
+			date_ob.getUTCMinutes() + ":" +
+			date_ob.getUTCSeconds()
 
 		var JSON_res = {
 			"status" : "OK",
 			"user" : api_result[0].name,
-			"api_key": api_result[0].api_key,
+			"request_time": date,
 			"limit": limit,
 			"length": length,
 			"sortby": sortBy,
