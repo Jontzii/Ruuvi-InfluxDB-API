@@ -21,16 +21,28 @@ var influx_client = new Influx.InfluxDB({
   password: process.env.INFLUX_PASSWORD
 })
 
+/**
+ * Adds delay gradually to users after they try connecting 
+ * over 150 times in 15 minutes.
+ */
 const speedLimiter = slowDown({
 	windowMs: 15 * 60 * 1000, // 15 minutes
 	delayAfter: 150, // allow 150 requests per 15 minutes, then...
 	delayMs: 500 // begin adding 500ms of delay per request above 100:
 });
-  
-function checkAPIKey(key, callback) {
-	var queryString = "SELECT api_key, name, length_limit FROM RuuviAPIKeys WHERE api_key='" + key + "'";
 
-	api_con.query(queryString, function (err, api_result, fields) {
+/**
+ * Check API key against SQL database.
+ * 
+ * @param {*} key Given API key.
+ * @param {*} callback Callback to rest of the application.
+ */
+function checkAPIKey(key, callback) {
+	var queryString = "SELECT api_key, name, length_limit FROM RuuviAPIKeys WHERE api_key = :apikey";
+
+	api_con.query(queryString, {
+		apikey: key
+	}, function (err, api_result) {
 		if (err) throw err;
 
 		var length_limit = null;
@@ -43,10 +55,23 @@ function checkAPIKey(key, callback) {
 		}
 		
 		callback(api_result, pass, length_limit);
-
 	});
 };
 
+/**
+ * Tries to sanitize calls made to Influx database to prevent injection.
+ * 
+ * Injection attacks are not as big of a deal with Influx as with SQL so 
+ * at the time of writing there is no build in query parameterization written into node-influx
+ * This function still tries to clean inputs so that the node server wont crash on query. 
+ * 
+ * @param {*} limit Amount of results to get.
+ * @param {*} sortBy Sort by descending or ascending.
+ * @param {*} from Where to start the query from timewise.
+ * @param {*} to Where to end the query to timewise.
+ * @param {*} length_limit Lenght limit for response from SQL.
+ * @param {*} callback Callback to rest of the application.
+ */
 function CheckParameters(limit, sortBy, from, to, length_limit, callback) {
 	// This function may need refactoring
 
@@ -56,8 +81,14 @@ function CheckParameters(limit, sortBy, from, to, length_limit, callback) {
 		if (length_limit == null) limit = -1
 		else limit = 1
 
+	} else if (!Number.isInteger(limit)) {
+
+		limit = 1;
+
 	} else if ((limit > length_limit) && length_limit != null) {
+
 		limit = length_limit;
+
 	}
 
 	// Check sort
@@ -112,6 +143,14 @@ function CheckParameters(limit, sortBy, from, to, length_limit, callback) {
 	callback(limit, sortBy, where);
 }
 
+/**
+ * Gets results from Influx database.
+ * 
+ * @param {*} limit Amount of results to get.
+ * @param {*} sortBy Sort by descending or ascending.
+ * @param {*} where Where part of the query.
+ * @param {*} callback Generates the JSON from data.
+ */
 function GetResultsFromInflux(limit, sortBy, where, callback) {
 	influx_query = 'SELECT temperature, airDensity, dewPoint, humidity, pressure FROM ruuvi_outdoor_measurements' 
 	
@@ -127,16 +166,22 @@ function GetResultsFromInflux(limit, sortBy, where, callback) {
 
 	//console.log(influx_query);
 
-	try {
-		influx_client.query(influx_query).then(data => {
-			callback(data);
-		});
-	} catch (e) {
-		console.log("Error");
-		console.log(e);
-	}
+	influx_client.query(influx_query).then(data => {
+		callback(data);
+	}).catch(error => {
+		console.log(error);
+	});
 }
 
+/**
+ * Generates JSON response that is send to user.
+ * 
+ * @param {*} limit Amount of results to get.
+ * @param {*} sortBy Sort by descending or ascending.
+ * @param {*} where Where part of the query.
+ * @param {*} api_result Results from SQL query.
+ * @param {*} callback Sends the JSON to user.
+ */
 function GenerateResponse(limit, sortBy, where, api_result, callback) {
 
 	GetResultsFromInflux(limit, sortBy, where, function(measurements) {
@@ -178,6 +223,9 @@ function GenerateResponse(limit, sortBy, where, api_result, callback) {
 
 app.use(speedLimiter);
 
+/**
+ * Normal API.
+ */
 app.get("/weather/apiv1", (req, res, next) => {
 	var key = req.query.api_key;  // API key
 	var limit = req.query.limit;  // limit of results
@@ -202,6 +250,9 @@ app.get("/weather/apiv1", (req, res, next) => {
 	});
 });
 
+/**
+ * Latest API.
+ */
 app.get("/weather/apiv1/latest", (req, res, next) => {
 	var key = req.query.api_key;  // API key
 
@@ -217,18 +268,30 @@ app.get("/weather/apiv1/latest", (req, res, next) => {
 	})
 });
 
+/**
+ * Prevent other REST API methods.
+ */
 app.post('/', function (req, res) {
 	res.status(401).send('Unauthorized');
 });
 
+/**
+ * Prevent other REST API methods.
+ */
 app.put('/', function (req, res) {
 	res.status(401).send('Unauthorized');
 });
 
+/**
+ * Prevent other REST API methods.
+ */
 app.delete('/', function (req, res) {
 	res.status(401).send('Unauthorized');
 });
 
+/**
+ * Prevent other REST API methods.
+ */
 app.listen(8300, () => {
 	console.log("Server running on port 8300");
 });
