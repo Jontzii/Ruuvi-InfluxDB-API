@@ -192,6 +192,8 @@ function GetResultsFromInflux(limit, sortBy, where, callback) {
 function GenerateResponse(limit, sortBy, where, api_result, callback) {
 
 	GetResultsFromInflux(limit, sortBy, where, function(measurements) {
+		let length = limit;
+
 		var JSON_res = {
 			"status" : "OK",
 			"user" : api_result[0].name,
