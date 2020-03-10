@@ -125,7 +125,7 @@ function GetResultsFromInflux(limit, sortBy, where, callback) {
 		influx_query += ' LIMIT ' + limit.toString();
 	}
 
-	console.log(influx_query);
+	//console.log(influx_query);
 
 	try {
 		influx_client.query(influx_query).then(data => {
@@ -229,6 +229,6 @@ app.delete('/', function (req, res) {
 	res.status(401).send('Unauthorized');
 });
 
-app.listen(3000, () => {
-	console.log("Server running on port 3000");
+app.listen(8300, () => {
+	console.log("Server running on port 8300");
 });
