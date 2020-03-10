@@ -38,11 +38,9 @@ const speedLimiter = slowDown({
  * @param {*} callback Callback to rest of the application.
  */
 function checkAPIKey(key, callback) {
-	var queryString = "SELECT api_key, name, length_limit FROM RuuviAPIKeys WHERE api_key = :apikey";
+	var queryString = "SELECT api_key, name, length_limit FROM RuuviAPIKeys WHERE api_key = ?";
 
-	api_con.query(queryString, {
-		apikey: key
-	}, function (err, api_result) {
+	api_con.query(queryString, [ key ], function (err, api_result) {
 		if (err) throw err;
 
 		var length_limit = null;
