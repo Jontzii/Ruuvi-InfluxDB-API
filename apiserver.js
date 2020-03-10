@@ -74,19 +74,28 @@ function CheckParameters(limit, sortBy, from, to, length_limit, callback) {
 	// This function may need refactoring
 
 	// Check limit
-	if (limit == {} || limit == null || limit < 1) {
+	if (limit != {} && limit != null) {
+		// Limit is defined
 
+		if (Number.isInteger(limit)) {
+			// Limit is integer
+
+			if (length_limit != null && limit > length_limit) limit = length_limit;
+			
+			if (length_limit == null && limit < -1) limit = -1;
+			else if (length_limit != null && limit < 0) limit = 0;
+			
+		} else {
+			// Limit is not integer
+			// Assign value of 0
+			limit = 0;
+		}
+	} else {
+		// Limit is not defined
+		// Assign default value
+		
 		if (length_limit == null) limit = -1
 		else limit = 1
-
-	} else if (!Number.isInteger(limit)) {
-
-		limit = 1;
-
-	} else if ((limit > length_limit) && length_limit != null) {
-
-		limit = length_limit;
-
 	}
 
 	// Check sort
@@ -188,6 +197,7 @@ function GenerateResponse(limit, sortBy, where, api_result, callback) {
 			"user" : api_result[0].name,
 			"api_key": api_result[0].api_key,
 			"limit": limit,
+			"length": length,
 			"sortby": sortBy,
 			"body": []
 		};
@@ -207,6 +217,8 @@ function GenerateResponse(limit, sortBy, where, api_result, callback) {
 			JSON_res.body[i] = temporary;
 			i++;
 		}
+
+		JSON_res.length = i;
 
 		if (JSON_res == null) {
 			JSON_res = {
