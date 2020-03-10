@@ -47,23 +47,99 @@ function checkAPIKey(key, callback) {
 	});
 };
 
-function GetResultsFromInflux(limit, sortBy, callback) {
-	influx_query = 'SELECT temperature, airDensity, dewPoint, humidity, pressure ' + 
-	'FROM ruuvi_outdoor_measurements ORDER BY ' + sortBy.toString();
+function CheckParameters(limit, sortBy, from, to, length_limit, callback) {
+	// This function may need refactoring
+
+	// Check limit
+	if (limit == {} || limit == null || limit < 1) {
+
+		if (length_limit == null) limit = -1
+		else limit = 1
+
+	} else if ((limit > length_limit) && length_limit != null) {
+		limit = length_limit;
+	}
+
+	// Check sort
+	if (sortBy != {} && sortBy != null) {
+
+		if (sortBy.toUpperCase() != "ASC") sortBy = "DESC";
+		else sortBy = "ASC";
+
+	} else {
+		sortBy = "DESC";
+	}
+
+	// Input sanitation for from and to parameters
+	// Checks that they are in correct format and corrects them in necessary
+
+	var durations = ["s", "m", "h", "d", "w"];
+
+	var fromPass = false;
+	var toPass = false;
+
+	if (from != {} && from != null) {
+		time_from = parseInt(from)
+		duration_from = from.substr(from.length - 1, 1);
+
+		if (Number.isInteger(time_from) && durations.includes(duration_from)) {
+			time_from = time_from * Math.sign(time_from);
+			from = time_from + duration_from;
+			fromPass = true;
+		}
+	}
+
+	if (to != {} && to != null) {
+		time_to = parseInt(to)
+		duration_to = to.substr(to.length - 1, 1);
+
+		if (Number.isInteger(time_to) && durations.includes(duration_to)) {
+			time_to = time_to * Math.sign(time_to);
+			to = time_to + duration_to;
+			toPass = true;
+		}
+	}
+
+	where = "";
+
+	if (fromPass && toPass)
+		where = " WHERE " + "time > now() - " + from + " AND " + "time < now() - " + to;
+	else if (fromPass)
+		where = " WHERE " + "time > now() - " + from;
+	else if (toPass)
+		where = " WHERE " + "time < now() - " + to;
+
+	callback(limit, sortBy, where);
+}
+
+function GetResultsFromInflux(limit, sortBy, where, callback) {
+	influx_query = 'SELECT temperature, airDensity, dewPoint, humidity, pressure FROM ruuvi_outdoor_measurements' 
+	
+	if (where != null) {
+		influx_query += where;
+	}
+
+	influx_query += ' ORDER BY ' + sortBy.toString();
 	
 	if (limit != -1) {
 		influx_query += ' LIMIT ' + limit.toString();
 	}
 
-	influx_client.query(influx_query).then(data => {
-		console.log(data);
-		callback(data);
-	});
+	console.log(influx_query);
+
+	try {
+		influx_client.query(influx_query).then(data => {
+			callback(data);
+		});
+	} catch (e) {
+		console.log("Error");
+		console.log(e);
+	}
 }
 
-function GenerateResponse(limit, sortBy, api_result, callback) {
+function GenerateResponse(limit, sortBy, where, api_result, callback) {
 
-	GetResultsFromInflux(limit, sortBy, function(measurements) {
+	GetResultsFromInflux(limit, sortBy, where, function(measurements) {
 		var JSON_res = {
 			"status" : "OK",
 			"user" : api_result[0].name,
@@ -107,35 +183,22 @@ app.get("/weather/apiv1", (req, res, next) => {
 	var limit = req.query.limit;  // limit of results
 	var sortBy = req.query.sort;  // Sort by DESC/ASC
 	var indent = req.query.indent;  // Indent results NOT IMPLEMENTED
-
+	var from = req.query.from;  // Return results from this time 
+	var to = req.query.to;  // Return results untill this time
+	
 	checkAPIKey(key, function(api_result, pass, length_limit) {
+		CheckParameters(limit, sortBy, from, to, length_limit, function(limit, sortBy, where) {
 
-		if (limit == {} || limit == null || limit < 1) {
+			if (pass == true) {
+				GenerateResponse(limit, sortBy, where, api_result, function(JSON_res) {
+					res.status(200).type('application/json').json(JSON_res);
+				});
+			}
+			else {
+				res.status(401).send('Unauthorized');
+			}
 
-			if (length_limit == null) limit = -1
-			else limit = 1
-
-		} else if ((limit > length_limit) && length_limit != null) {
-			limit = length_limit;
-		}
-
-		if (sortBy != {} && sortBy != null) {
-
-			if (sortBy.toUpperCase() != "ASC") sortBy = "DESC";
-			else sortBy = "ASC";
-
-		} else {
-			sortBy = "DESC";
-		}
-		
-		if (pass == true) {
-			GenerateResponse(limit, sortBy, api_result, function(JSON_res) {
-				res.status(200).type('application/json').json(JSON_res);
-			});
-		}
-		else {
-			res.status(401).send('Unauthorized');
-		}
+		});
 	});
 });
 
