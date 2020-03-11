@@ -1,5 +1,5 @@
 # Influx DB API
-API that returns values from Influx DB which contains meteorological data measured continuosly with Ruuvitag using RuuviCollector.
+API that returns values from Influx DB which contains meteorological data measured continuosly with Ruuvitag using [RuuviCollector](https://github.com/Scrin/RuuviCollector).
 
 ## URL
 data.jontzi.com/weather/apiv1?api_key=xx
@@ -53,8 +53,8 @@ Returns latest measured data.
 - Select what data to return
 
 ## Dependecies
-- ExpressJS
-- Node-Influx
-- Dotenv
-- MySQL
-- express-slow-down
+- [ExpressJS](https://github.com/expressjs/express)
+- [Node-Influx](https://github.com/node-influx/node-influx)
+- [Dotenv](https://github.com/motdotla/dotenv)
+- [MySQL](https://github.com/mysqljs/mysql)
+- [express-slow-down](https://github.com/rameshgkwd05/express-slow-down)
