@@ -3,6 +3,7 @@ API that returns values from Influx DB which contains meteorological data measur
 
 ## URL
 data.jontzi.com/weather/apiv1
+
 data.jontzi.com/weather/apiv1/latest
 
 ## API Key
