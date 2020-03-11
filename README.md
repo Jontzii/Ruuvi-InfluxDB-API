@@ -1,5 +1,5 @@
 # Influx DB API
-API that returns values from Influx DB which contains meteorological data measured continuosly with Ruuvitag using [RuuviCollector](https://github.com/Scrin/RuuviCollector).
+API that returns values from Influx DB which contains meteorological data measured continuously with Ruuvitag using [RuuviCollector](https://github.com/Scrin/RuuviCollector).
 
 ## URL
 data.jontzi.com/weather/apiv1?api_key=xx
@@ -7,7 +7,7 @@ data.jontzi.com/weather/apiv1?api_key=xx
 data.jontzi.com/weather/apiv1/latest?api_key=xx
 
 ## API Key
-An API key is required to make any calls. Calls made without proper key will return HTTP 401 Unauthorized. Key can be authorized by adding it to MySQL table containing the keys. Currently api key's only purpose it to block most webscrapers/bots as the website is not secured by any other way. In the future a better and more secure method will probably be implemented.
+An API key is required to make any calls. Calls made without a proper key will return HTTP 401 Unauthorized. A key can be authorized by adding it to a MySQL table containing the keys. Currently, api-key's only purpose is to block most web scrapers/bots as the website is not secured in any other way. In the future, a better and more secure method will probably be implemented.
 
 ## Data
 All data is returned in a JSON-format. The following measurements are measured:

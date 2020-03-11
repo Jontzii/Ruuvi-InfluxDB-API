@@ -11,7 +11,7 @@
     "url": "git+https://github.com/Jontzii/Ruuvi-InfluxDB-API.git"
   },
   "author": "Joonas Hiltunen",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https:/https://github.com/Jontzii/Ruuvi-InfluxDB-API/issues"
   },
