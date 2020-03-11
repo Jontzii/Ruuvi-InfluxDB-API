@@ -7,7 +7,7 @@ data.jontzi.com/weather/apiv1?api_key=xx
 data.jontzi.com/weather/apiv1/latest?api_key=xx
 
 ## API Key
-An API key is required to make any calls. Calls made without proper key will return HTTP 401 Unauthorized. Key can be authorized by adding it to MySQL table containing the keys.
+An API key is required to make any calls. Calls made without proper key will return HTTP 401 Unauthorized. Key can be authorized by adding it to MySQL table containing the keys. Currently api key's only purpose it to block most webscrapers/bots as the website is not secured by any other way. In the future a better and more secure method will probably be implemented.
 
 ## Data
 All data is returned in a JSON-format. The following measurements are measured:
@@ -24,7 +24,7 @@ Please note that incorrect optional parameters are ignored!
 2. limit - (optional) - How many results to get, max amount is defined per user in SQL
 3. sortby DESC/ASC - (optional) - Sort results to be descending or ascending
 4. from and to - (optional) - Select timeframe for results, read more below
-4. ~~indent~~ - (optional) - indent results to be more readable - Not Yet Implemented
+4. indent true/false - (optional) - indent results to be more readable
 
 ### From and To
 From and to select the starting and ending points for query. The points are calculated in the following way: time and date now - x * duration modifier, where x is the parameter open for user to edit. The value should be either positive or negative integer and duration modifier. Duration modifiers are listed below.
@@ -47,7 +47,7 @@ data.jontzi.com/weather/apiv1/latest?api_key=xx
 Returns latest measured data.
 
 ## TODO List
-- Indent
+- HTTPS Support
 - Optional MySQL/APIkey authorization
 - Better "from" and "to"
 - Select what data to return

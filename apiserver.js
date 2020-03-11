@@ -1,6 +1,6 @@
 require('dotenv').config()
-var express = require("express");
-var slowDown = require("express-slow-down");
+var express = require('express');
+var slowDown = require('express-slow-down');
 var Influx = require('influx');
 var mysql = require('mysql');
 
@@ -66,17 +66,17 @@ function checkAPIKey(key, callback) {
  * 
  * @param {*} limit Amount of results to get.
  * @param {*} sortBy Sort by descending or ascending.
+ * @param {*} indent Will JSON be indented for easy reading.
  * @param {*} from Where to start the query from timewise.
  * @param {*} to Where to end the query to timewise.
  * @param {*} length_limit Lenght limit for response from SQL.
  * @param {*} callback Callback to rest of the application.
  */
-function CheckParameters(limit, sortBy, from, to, length_limit, callback) {
+function CheckParameters(limit, sortBy, indent, from, to, length_limit, callback) {
 	// This function may need refactoring
 
 	// Check limit
 	if (limit != {} && limit != null) {
-		// Limit is defined
 		if (Number.isInteger(parseInt(limit)) && !Array.isArray(limit)) {
 			// Limit is integer && not array
 
@@ -84,45 +84,41 @@ function CheckParameters(limit, sortBy, from, to, length_limit, callback) {
 
 			if (length_limit == null && limit <= 0) limit = 0;
 			else if (length_limit != null && limit < 1) limit = 1;
-		} else {
-			// Limit is not integer
-			// Assign value of 1
-			limit = 1;
-		}
-	} else {
-		// Limit is not defined
-		// Assign default value
-		limit = 1
-	}
+
+		} else limit = 1;
+
+	} else limit = 1;
 
 	// Check sort
 	if (sortBy != {} && sortBy != null && Array.isArray(sortBy)) {
-		// Sort is defined and is not array
 
 		if (sortBy.toUpperCase() != "ASC") sortBy = "DESC";
 		else sortBy = "ASC";
 
 	} else {
-		// Sort is not defined or is a array
-		// Default value
 		sortBy = "DESC";
 	}
+
+	// Check indent
+	if (indent != {} && indent != null && 
+		!Array.isArray(indent) && indent.toLowerCase() == "true") JSON_spaces = 2;
+	else JSON_spaces = 0;
+
+	app.set('json spaces', JSON_spaces)
 
 	// Input sanitation for from and to parameters
 	// Checks that they are in correct format and corrects them in necessary
 
 	var durations = ["s", "m", "h", "d", "w"];
 
-	var fromPass = false;  // Add from to where?
-	var toPass = false;  // Add to to where?
+	var fromPass = false;
+	var toPass = false;
 
 	if (from != {} && from != null && !Array.isArray(from)) {
-		// From is defined and is not array
 		time_from = parseInt(from)
 		duration_from = from.substr(from.length - 1, 1);
 
 		if (Number.isInteger(time_from) && durations.includes(duration_from)) {
-			// From time and duration modifier are correct
 			time_from = time_from * Math.sign(time_from);
 			from = time_from + duration_from;
 			fromPass = true;
@@ -130,12 +126,10 @@ function CheckParameters(limit, sortBy, from, to, length_limit, callback) {
 	}
 
 	if (to != {} && to != null && !Array.isArray(to)) {
-		// To is defined and is not array
 		time_to = parseInt(to)
 		duration_to = to.substr(to.length - 1, 1);
 
 		if (Number.isInteger(time_to) && durations.includes(duration_to)) {
-			// To time and duration modifier are correct
 			time_to = time_to * Math.sign(time_to);
 			to = time_to + duration_to;
 			toPass = true;
@@ -181,7 +175,7 @@ function GetResultsFromInflux(limit, sortBy, where, callback) {
 	influx_client.query(influx_query).then(data => {
 		callback(data);
 	}).catch(error => {
-		//console.log(error);
+		callback(null);
 	});
 }
 
@@ -197,7 +191,9 @@ function GetResultsFromInflux(limit, sortBy, where, callback) {
 function GenerateResponse(limit, sortBy, where, api_result, callback) {
 
 	GetResultsFromInflux(limit, sortBy, where, function(measurements) {
-		let length = limit;
+		
+		let status = "Error";
+		let length = 0;
 		let ts = Date.now();
 		let date_ob = new Date(ts);
 		let date = 
@@ -208,8 +204,10 @@ function GenerateResponse(limit, sortBy, where, api_result, callback) {
 			date_ob.getUTCMinutes() + ":" +
 			date_ob.getUTCSeconds()
 
+		if (measurements != null) status = "Ok"
+
 		var JSON_res = {
-			"status" : "OK",
+			"status" : status,
 			"user" : api_result[0].name,
 			"request_time": date,
 			"limit": limit,
@@ -218,29 +216,24 @@ function GenerateResponse(limit, sortBy, where, api_result, callback) {
 			"body": []
 		};
 
-		i = 0
-
-		while (measurements[i] != null) {
-			var temporary = {};
-
-			temporary['time'] = measurements[i].time;
-			temporary['temperature'] = measurements[i].temperature
-			temporary['air_density'] = measurements[i].airDensity
-			temporary['dewpoint'] = measurements[i].dewPoint
-			temporary['humidity'] = measurements[i].humidity
-			temporary['pressure'] = measurements[i].pressure
-
-			JSON_res.body[i] = temporary;
-			i++;
-		}
-
-		JSON_res.length = i;
-
-		if (JSON_res == null) {
-			JSON_res = {
-				"status": "Error",
-				"data": []
+		if (measurements != null) {
+			i = 0
+	
+			while (measurements[i] != null) {
+				var temporary = {};
+	
+				temporary['time'] = measurements[i].time;
+				temporary['temperature'] = measurements[i].temperature
+				temporary['air_density'] = measurements[i].airDensity
+				temporary['dewpoint'] = measurements[i].dewPoint
+				temporary['humidity'] = measurements[i].humidity
+				temporary['pressure'] = measurements[i].pressure
+	
+				JSON_res.body[i] = temporary;
+				i++;
 			}
+	
+			JSON_res.length = i;
 		}
 
 		callback(JSON_res);
@@ -256,12 +249,12 @@ app.get("/weather/apiv1", (req, res, next) => {
 	var key = req.query.api_key;  // API key
 	var limit = req.query.limit;  // limit of results
 	var sortBy = req.query.sort;  // Sort by DESC/ASC
-	var indent = req.query.indent;  // Indent results NOT IMPLEMENTED
+	var indent = req.query.indent;  // Indent results
 	var from = req.query.from;  // Return results from this time 
 	var to = req.query.to;  // Return results untill this time
 	
 	checkAPIKey(key, function(api_result, pass, length_limit) {
-		CheckParameters(limit, sortBy, from, to, length_limit, function(limit, sortBy, where) {
+		CheckParameters(limit, sortBy, indent, from, to, length_limit, function(limit, sortBy, where) {
 
 			if (pass == true) {
 				GenerateResponse(limit, sortBy, where, api_result, function(JSON_res) {
@@ -271,7 +264,6 @@ app.get("/weather/apiv1", (req, res, next) => {
 			else {
 				res.status(401).send('Unauthorized');
 			}
-
 		});
 	});
 });
@@ -281,10 +273,16 @@ app.get("/weather/apiv1", (req, res, next) => {
  */
 app.get("/weather/apiv1/latest", (req, res, next) => {
 	var key = req.query.api_key;  // API key
+	var indent = req.query.indent;  // Indent results
 
 	checkAPIKey(key, function (api_result, pass, length_limit) {
 		if (pass == true) {
 			GenerateResponse("1", "DESC", "", api_result, function(JSON_res) {
+
+				JSON_spaces = 0;
+				if (indent) JSON_spaces = 2;
+				app.set('json spaces', JSON_spaces);
+
 				res.status(200).type('application/json').json(JSON_res);
 			});
 		}
