@@ -46,6 +46,12 @@ Returns 20 latest measurements sorted from new to old.
 data.jontzi.com/weather/apiv1/latest?api_key=xx
 Returns latest measured data.
 
+## TODO List
+- Indent
+- Optional MySQL/APIkey authorization
+- Better "from" and "to"
+- Select what data to return
+
 ## Dependecies
 - ExpressJS
 - Node-Influx
