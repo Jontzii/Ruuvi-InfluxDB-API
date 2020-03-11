@@ -8,14 +8,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Jontzii/RuuviAPI.git"
+    "url": "git+https://github.com/Jontzii/Ruuvi-InfluxDB-API.git"
   },
   "author": "Joonas Hiltunen",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Jontzii/RuuviAPI/issues"
+    "url": "https:/https://github.com/Jontzii/Ruuvi-InfluxDB-API/issues"
   },
-  "homepage": "https://github.com/Jontzii/RuuviAPI#readme",
+  "homepage": "https://https://github.com/Jontzii/Ruuvi-InfluxDB-API#readme",
   "dependencies": {
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
