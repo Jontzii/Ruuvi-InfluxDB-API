@@ -24,7 +24,7 @@ Please note that incorrect optional parameters are ignored!
 2. limit - (optional) - How many results to get, max amount is defined per user in SQL
 3. sortby DESC/ASC - (optional) - Sort results to be descending or ascending
 4. from and to - (optional) - Select timeframe for results, read more below
-4. indent true/false - (optional) - indent results to be more readable
+4. indent true/false - (optional) - Indent JSON results to be more readable
 
 ### From and To
 From and to select the starting and ending points for query. The points are calculated in the following way: time and date now - x * duration modifier, where x is the parameter open for user to edit. The value should be either positive or negative integer and duration modifier. Duration modifiers are listed below.
