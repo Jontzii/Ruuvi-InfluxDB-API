@@ -2,9 +2,9 @@
 API that returns values from Influx DB which contains meteorological data measured continuosly with Ruuvitag using RuuviCollector.
 
 ## URL
-data.jontzi.com/weather/apiv1
+data.jontzi.com/weather/apiv1?api_key=xx
 
-data.jontzi.com/weather/apiv1/latest
+data.jontzi.com/weather/apiv1/latest?api_key=xx
 
 ## API Key
 An API key is required to make any calls. Calls made without proper key will return HTTP 401 Unauthorized. Key can be authorized by adding it to MySQL table containing the keys.
