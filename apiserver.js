@@ -58,6 +58,25 @@ function checkAPIKey(key, callback) {
 };
 
 /**
+ * Check whether to apply indent
+ * 
+ * @param {*} indent true or false
+ * @param {*} callback -
+ */
+function setIndent(indent, callback) {
+	if (indent != {} 
+		&& indent != null 
+		&& !Array.isArray(indent) 
+		&& indent.toLowerCase() == "true") JSON_spaces = 2;
+
+	else JSON_spaces = 0;
+
+	app.set('json spaces', JSON_spaces)
+
+	callback();
+}
+
+/**
  * Tries to sanitize calls made to Influx database to prevent injection.
  * 
  * Injection attacks are not as big of a deal with Influx as with SQL so 
@@ -99,13 +118,6 @@ function CheckParameters(limit, sortBy, indent, from, to, length_limit, callback
 		sortBy = "DESC";
 	}
 
-	// Check indent
-	if (indent != {} && indent != null && 
-		!Array.isArray(indent) && indent.toLowerCase() == "true") JSON_spaces = 2;
-	else JSON_spaces = 0;
-
-	app.set('json spaces', JSON_spaces)
-
 	// Input sanitation for from and to parameters
 	// Checks that they are in correct format and corrects them in necessary
 
@@ -146,7 +158,10 @@ function CheckParameters(limit, sortBy, indent, from, to, length_limit, callback
 	else if (toPass)
 		where = " WHERE " + "time < now() - " + to;
 
-	callback(limit, sortBy, where);
+	// Check indent
+	setIndent(indent, function() {
+		callback(limit, sortBy, where);
+	});	
 }
 
 /**
@@ -279,11 +294,9 @@ app.get("/weather/apiv1/latest", (req, res, next) => {
 		if (pass == true) {
 			GenerateResponse("1", "DESC", "", api_result, function(JSON_res) {
 
-				JSON_spaces = 0;
-				if (indent) JSON_spaces = 2;
-				app.set('json spaces', JSON_spaces);
-
-				res.status(200).type('application/json').json(JSON_res);
+				setIndent(indent, function() {
+					res.status(200).type('application/json').json(JSON_res);
+				})		
 			});
 		}
 		else {
