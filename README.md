@@ -1,4 +1,4 @@
-# Influx DB API
+# Influx DB API [![Build Status](https://travis-ci.com/Jontzii/Ruuvi-InfluxDB-API.svg?token=5Bjybdo7LaL3nvzBsFyv&branch=master)](https://travis-ci.com/Jontzii/Ruuvi-InfluxDB-API)
 API that returns values from Influx DB which contains meteorological data measured continuously with Ruuvitag using [RuuviCollector](https://github.com/Scrin/RuuviCollector).
 
 ## URL
