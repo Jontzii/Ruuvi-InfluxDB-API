@@ -1,5 +1,5 @@
 # Influx DB API [![Build Status](https://travis-ci.com/Jontzii/Ruuvi-InfluxDB-API.svg?token=5Bjybdo7LaL3nvzBsFyv&branch=master)](https://travis-ci.com/Jontzii/Ruuvi-InfluxDB-API)
-API that returns values from Influx DB which contains meteorological data measured continuously with Ruuvitag using [RuuviCollector](https://github.com/Scrin/RuuviCollector). Made mainly to be used with my own weather website/app.
+API that returns values from Influx DB which contains meteorological data measured continuously with Ruuvitag using [RuuviCollector](https://github.com/Scrin/RuuviCollector). Made mainly to be used with my own weather website/app and as a nodejs/express learning project.
 
 ## URL
 data.jontzi.com/weather/api/1?api_key=xx
