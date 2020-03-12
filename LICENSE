@@ -11,11 +11,17 @@ Copyright (c) 2014-2015 Douglas Christopher Wilson <doug@somethingdoug.com>
 node-influx
 Copyright (c) 2016 Connor Peet
 
-MySQL-node
+mysql-node
 Copyright (c) 2012 Felix Geisendörfer (felix@debuggable.com) and contributors
 
 express-slow-down
 Copyright (c) Nathan Friedly
+
+mocha
+Copyright (c) 2011-2020 OpenJS Foundation and contributors, https://openjsf.org
+
+chai
+Copyright (c) 2017 Chai.js Assertion Library
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
