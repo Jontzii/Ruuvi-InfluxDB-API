@@ -30,10 +30,10 @@ module.exports = {
                 if (length_limit != null && limit > length_limit) 
                     limit = length_limit;
 
-                if (length_limit == null && limit <= 0) limit = 0;
+                if (length_limit == null && limit <= 0) limit = 1;
                 else if (length_limit != null && limit < 1) limit = 1;
 
-            }
+            } else limit = 1;
 
             // Check sort
             if (!Array.isArray(sortBy)) {
@@ -52,6 +52,7 @@ module.exports = {
             var toPass = false;
 
             if (from != {} && from != null && !Array.isArray(from)) {
+                from = from.toString();  // Make sure entry is string
                 time_from = parseInt(from)
                 duration_from = from.substr(from.length - 1, 1);
 
@@ -63,6 +64,7 @@ module.exports = {
             }
 
             if (to != {} && to != null && !Array.isArray(to)) {
+                to = to.toString();  // Make sure entry is string
                 time_to = parseInt(to)
                 duration_to = to.substr(to.length - 1, 1);
 
@@ -95,12 +97,12 @@ module.exports = {
      */
     setIndent: function(indent = "false", app) {
 
+        var JSON_spaces = 0;
+        
         try {
-            var JSON_spaces = 0
-
             if (!Array.isArray(indent) && indent.toLowerCase() == "true") JSON_spaces = 2;
         } 
         catch (err) { console.log(err); }
-        finally { app.set('json spaces', JSON_spaces); }
+        finally { app.set('json spaces', JSON_spaces); return JSON_spaces; }
     }
 }
