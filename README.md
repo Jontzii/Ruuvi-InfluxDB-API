@@ -49,6 +49,7 @@ Returns latest measured data.
 ## TODO List
 - HTTPS Support
 - Optional MySQL/APIkey authorization
+- Correct url for every result
 - Better "from" and "to"
 - Select what data to return
 
