@@ -2,7 +2,7 @@
   "name": "ruuviapi",
   "version": "1.0.0",
   "description": "REST API that returns values from Ruuvi DB",
-  "main": "apiserver.js",
+  "main": "server.js",
   "scripts": {
     "test": "mocha"
   },
