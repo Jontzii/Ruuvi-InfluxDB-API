@@ -22,6 +22,8 @@ var influx_client = new Influx.InfluxDB({
   password: process.env.INFLUX_PASSWORD
 })
 
+var globalErr = false;
+
 /**
  * Adds delay gradually to users after they try connecting 
  * over 150 times in 15 minutes.
@@ -42,7 +44,10 @@ function checkAPIKey(key, callback) {
 	var queryString = "SELECT api_key, name, length_limit FROM RuuviAPIKeys WHERE api_key = ?";
 
 	api_con.query(queryString, [ key ], function (err, api_result) {
-		if (err) throw err;
+		if (err) {
+			globalErr = true;
+			throw err
+		};
 
 		var length_limit = null;
 
@@ -58,22 +63,28 @@ function checkAPIKey(key, callback) {
 };
 
 /**
- * Check whether to apply indent
+ * Check whether to apply indent.
  * 
  * @param {*} indent true or false
  * @param {*} callback -
  */
 function setIndent(indent, callback) {
-	if (indent != {} 
-		&& indent != null 
-		&& !Array.isArray(indent) 
-		&& indent.toLowerCase() == "true") JSON_spaces = 2;
 
-	else JSON_spaces = 0;
+	try {
+		if (indent != {} 
+			&& indent != null 
+			&& !Array.isArray(indent) 
+			&& indent.toLowerCase() == "true") JSON_spaces = 2;
+	
+		else JSON_spaces = 0;
+	
+		app.set('json spaces', JSON_spaces);
 
-	app.set('json spaces', JSON_spaces)
-
-	callback();
+	} catch (err) {
+		globalErr = true;
+	} finally {
+		callback();
+	}
 }
 
 /**
@@ -94,74 +105,80 @@ function setIndent(indent, callback) {
 function CheckParameters(limit, sortBy, indent, from, to, length_limit, callback) {
 	// This function may need refactoring
 
-	// Check limit
-	if (limit != {} && limit != null) {
-		if (Number.isInteger(parseInt(limit)) && !Array.isArray(limit)) {
-			// Limit is integer && not array
+	try {
 
-			if (length_limit != null && limit > length_limit) limit = length_limit;
+		// Check limit
+		if (limit != {} && limit != null) {
+			if (Number.isInteger(parseInt(limit)) && !Array.isArray(limit)) {
+				// Limit is integer && not array
 
-			if (length_limit == null && limit <= 0) limit = 0;
-			else if (length_limit != null && limit < 1) limit = 1;
+				if (length_limit != null && limit > length_limit) limit = length_limit;
+
+				if (length_limit == null && limit <= 0) limit = 0;
+				else if (length_limit != null && limit < 1) limit = 1;
+
+			} else limit = 1;
 
 		} else limit = 1;
 
-	} else limit = 1;
+		// Check sort
+		if (sortBy != {} && sortBy != null && Array.isArray(sortBy)) {
 
-	// Check sort
-	if (sortBy != {} && sortBy != null && Array.isArray(sortBy)) {
+			if (sortBy.toUpperCase() != "ASC") sortBy = "DESC";
+			else sortBy = "ASC";
 
-		if (sortBy.toUpperCase() != "ASC") sortBy = "DESC";
-		else sortBy = "ASC";
-
-	} else {
-		sortBy = "DESC";
-	}
-
-	// Input sanitation for from and to parameters
-	// Checks that they are in correct format and corrects them in necessary
-
-	var durations = ["s", "m", "h", "d", "w"];
-
-	var fromPass = false;
-	var toPass = false;
-
-	if (from != {} && from != null && !Array.isArray(from)) {
-		time_from = parseInt(from)
-		duration_from = from.substr(from.length - 1, 1);
-
-		if (Number.isInteger(time_from) && durations.includes(duration_from)) {
-			time_from = time_from * Math.sign(time_from);
-			from = time_from + duration_from;
-			fromPass = true;
+		} else {
+			sortBy = "DESC";
 		}
-	}
 
-	if (to != {} && to != null && !Array.isArray(to)) {
-		time_to = parseInt(to)
-		duration_to = to.substr(to.length - 1, 1);
+		// Input sanitation for from and to parameters
+		// Checks that they are in correct format and corrects them in necessary
 
-		if (Number.isInteger(time_to) && durations.includes(duration_to)) {
-			time_to = time_to * Math.sign(time_to);
-			to = time_to + duration_to;
-			toPass = true;
+		var durations = ["s", "m", "h", "d", "w"];
+
+		var fromPass = false;
+		var toPass = false;
+
+		if (from != {} && from != null && !Array.isArray(from)) {
+			time_from = parseInt(from)
+			duration_from = from.substr(from.length - 1, 1);
+
+			if (Number.isInteger(time_from) && durations.includes(duration_from)) {
+				time_from = time_from * Math.sign(time_from);
+				from = time_from + duration_from;
+				fromPass = true;
+			}
 		}
+
+		if (to != {} && to != null && !Array.isArray(to)) {
+			time_to = parseInt(to)
+			duration_to = to.substr(to.length - 1, 1);
+
+			if (Number.isInteger(time_to) && durations.includes(duration_to)) {
+				time_to = time_to * Math.sign(time_to);
+				to = time_to + duration_to;
+				toPass = true;
+			}
+		}
+
+		// Form where clause
+		where = "";
+
+		if (fromPass && toPass)
+			where = " WHERE " + "time > now() - " + from + " AND " + "time < now() - " + to;
+		else if (fromPass)
+			where = " WHERE " + "time > now() - " + from;
+		else if (toPass)
+			where = " WHERE " + "time < now() - " + to;
+
+		// Check indent
+		setIndent(indent, function() {
+			callback(limit, sortBy, where);
+		});	
+
+	} catch (err) {
+		globalErr = true;
 	}
-
-	// Form where clause
-	where = "";
-
-	if (fromPass && toPass)
-		where = " WHERE " + "time > now() - " + from + " AND " + "time < now() - " + to;
-	else if (fromPass)
-		where = " WHERE " + "time > now() - " + from;
-	else if (toPass)
-		where = " WHERE " + "time < now() - " + to;
-
-	// Check indent
-	setIndent(indent, function() {
-		callback(limit, sortBy, where);
-	});	
 }
 
 /**
@@ -219,7 +236,7 @@ function GenerateResponse(limit, sortBy, where, api_result, callback) {
 			date_ob.getUTCMinutes() + ":" +
 			date_ob.getUTCSeconds()
 
-		if (measurements != null) status = "Ok"
+		if (measurements != null && !globalErr) status = "Ok"
 
 		var JSON_res = {
 			"status" : status,
@@ -231,7 +248,7 @@ function GenerateResponse(limit, sortBy, where, api_result, callback) {
 			"body": []
 		};
 
-		if (measurements != null) {
+		if (measurements != null && !globalErr) {
 			i = 0
 	
 			while (measurements[i] != null) {
