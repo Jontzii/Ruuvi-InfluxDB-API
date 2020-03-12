@@ -2,9 +2,9 @@
 API that returns values from Influx DB which contains meteorological data measured continuously with Ruuvitag using [RuuviCollector](https://github.com/Scrin/RuuviCollector).
 
 ## URL
-data.jontzi.com/weather/apiv1?api_key=xx
+data.jontzi.com/weather/api/1?api_key=xx
 
-data.jontzi.com/weather/apiv1/latest?api_key=xx
+data.jontzi.com/weather/api/1/latest?api_key=xx
 
 ## API Key
 An API key is required to make any calls. Calls made without a proper key will return HTTP 401 Unauthorized. A key can be authorized by adding it to a MySQL table containing the keys. Currently, api-key's only purpose is to block most web scrapers/bots as the website is not secured in any other way. In the future, a better and more secure method will probably be implemented.
@@ -37,13 +37,13 @@ From and to select the starting and ending points for query. The points are calc
 - "w" = weeks
 
 ## Example Calls
-data.jontzi.com/weather/apiv1?api_key=xx&from=10h&to=2h&sort=asc
+data.jontzi.com/weather/api/1?api_key=xx&from=10h&to=2h&sort=asc
 Returns every measured value from 10 hours ago until 2 hours ago. Results are sorted from old to new.
 
-data.jontzi.com/weather/apiv1?api_key=xx&limit=20
+data.jontzi.com/weather/api/1?api_key=xx&limit=20
 Returns 20 latest measurements sorted from new to old.
 
-data.jontzi.com/weather/apiv1/latest?api_key=xx
+data.jontzi.com/weather/api/1/latest?api_key=xx
 Returns latest measured data.
 
 ## TODO List
