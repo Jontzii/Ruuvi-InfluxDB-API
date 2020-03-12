@@ -18,7 +18,7 @@ All data is returned in a JSON-format. The following measurements are measured:
 5. humidity - Measured humidity
 6. pressure - Measured pressure
 
-## Parameters (optional)
+## Parameters
 Please note that incorrect optional parameters are ignored!
 1. api_key - required - API key to use
 2. limit - (optional) - How many results to get, max amount is defined per user in SQL
@@ -53,7 +53,7 @@ Returns latest measured data.
 - Better "from" and "to"
 - Select what data to return
 
-## Dependecies
+## Dependencies
 - [ExpressJS](https://github.com/expressjs/express)
 - [Node-Influx](https://github.com/node-influx/node-influx)
 - [Dotenv](https://github.com/motdotla/dotenv)
