@@ -40,6 +40,12 @@ const speedLimiter = slowDown({
 
 app.use(speedLimiter);
 
+app.use(function(req, res, next) {
+	// Request methods you wish to allow
+    res.setHeader('Access-Control-Allow-Methods', 'GET');
+	next();
+})
+
 /**
  * Normal API.
  */
@@ -82,7 +88,7 @@ app.get("/weather/api/1/:id", (req, res, next) => {
 	var where = ""; // WHERE Clause
 	var id = req.params.id;  // id of result / command latest
 
-	console.log(id)
+	//console.log(id)
 	
 	sql_con.checkAPIKey(key, sql_client, function (api_result, pass, length_limit) {
 		if (pass == true) {
@@ -100,30 +106,6 @@ app.get("/weather/api/1/:id", (req, res, next) => {
 	});
 });
 
-/**
- * Prevent other REST API methods.
- */
-app.post('/', function (req, res) {
-	res.status(401).send('Unauthorized');
-});
-
-/**
- * Prevent other REST API methods.
- */
-app.put('/', function (req, res) {
-	res.status(401).send('Unauthorized');
-});
-
-/**
- * Prevent other REST API methods.
- */
-app.delete('/', function (req, res) {
-	res.status(401).send('Unauthorized');
-});
-
-/**
- * Prevent other REST API methods.
- */
 app.listen(8300, () => {
 	console.log("Server running on port 8300");
 });
