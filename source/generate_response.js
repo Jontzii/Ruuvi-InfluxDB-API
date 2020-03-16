@@ -17,15 +17,8 @@ module.exports = {
             let status = "Error";
             let length = 0;
             let ts = Date.now();
-            let date_ob = new Date(ts);
-            let date = 
-                date_ob.getUTCFullYear() + "-" + 
-                (date_ob.getUTCMonth() + 1) + "-" + 
-                date_ob.getUTCDate() + " " +
-                date_ob.getUTCHours() + ":" +
-                date_ob.getUTCMinutes() + ":" +
-                date_ob.getUTCSeconds()
-    
+            let date = new Date(ts).toISOString().substr(0, 19).replace('T', ' ');
+
             if (measurements != null) status = "Ok"
     
             var JSON_res = {
@@ -44,7 +37,7 @@ module.exports = {
                 while (measurements[i] != null) {
                     var temporary = {};
         
-                    temporary['time'] = measurements[i].time;
+                    temporary['time'] = measurements[i].time.toISOString().substr(0, 19).replace('T', ' ');
                     temporary['temperature'] = measurements[i].temperature
                     temporary['air_density'] = measurements[i].airDensity
                     temporary['dewpoint'] = measurements[i].dewPoint
