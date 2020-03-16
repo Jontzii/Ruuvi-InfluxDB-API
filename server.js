@@ -44,14 +44,13 @@ app.use(speedLimiter);
 var whitelist = ['http://jontzi.com', 'http://data.jontzi.com']
 var corsOptions = {
 	origin: function (origin, callback) {
-	  if (whitelist.indexOf(origin) !== -1) {
+	  if (whitelist.indexOf(origin) !== -1 || !origin) {
 		callback(null, true)
 	  } else {
 		callback(new Error("CORS error"))
 	  }
 	}
 }
-app.use(cors(corsOptions));
 
 app.use(function(req, res, next) {
 	// Request methods you wish to allow
@@ -62,7 +61,7 @@ app.use(function(req, res, next) {
 /**
  * Normal API.
  */
-app.get("/weather/api/1/", (req, res, next) => {
+app.get("/weather/api/1/", cors(corsOptions), (req, res, next) => {
 	var key = req.query.api_key;  // API key
 	var limit = req.query.limit;  // limit of results
 	var sortBy = req.query.sort;  // Sort by DESC/ASC
@@ -92,15 +91,13 @@ app.get("/weather/api/1/", (req, res, next) => {
 /**
  * Find by id API.
  */
-app.get("/weather/api/1/:id", (req, res, next) => {
+app.get("/weather/api/1/:id", cors(corsOptions), (req, res, next) => {
 	var key = req.query.api_key;  // API key
 	var indent = req.query.indent;  // Indent results
 	var limit = 1;  // limit of results
 	var sortBy = "DESC";  // Sort by DESC/ASC
 	var where = ""; // WHERE Clause
 	var id = req.params.id;  // id of result / command latest
-
-	//console.log(id)
 	
 	sql_con.checkAPIKey(key, sql_client, function (api_result, pass, length_limit) {
 		if (pass == true) {
