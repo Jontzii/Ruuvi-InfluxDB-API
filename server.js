@@ -3,6 +3,7 @@ var express = require('express');
 var Influx = require('influx');
 var mysql = require('mysql');
 var slowDown = require('express-slow-down');
+var cors = require('cors');
 
 var app = express();
 
@@ -37,8 +38,20 @@ const speedLimiter = slowDown({
 	delayAfter: 150, // allow 150 requests per 15 minutes, then...
 	delayMs: 500 // begin adding 500ms of delay per request above 100:
 });
-
 app.use(speedLimiter);
+
+// CORS Stuff
+var whitelist = ['http://jontzi.com', 'http://data.jontzi.com']
+var corsOptions = {
+	origin: function (origin, callback) {
+	  if (whitelist.indexOf(origin) !== -1) {
+		callback(null, true)
+	  } else {
+		callback(new Error("CORS error"))
+	  }
+	}
+}
+app.use(cors(corsOptions));
 
 app.use(function(req, res, next) {
 	// Request methods you wish to allow
@@ -58,7 +71,6 @@ app.get("/weather/api/1/", (req, res, next) => {
 	var to = req.query.to;  // Return results untill this time
 	
 	sql_con.checkAPIKey(key, sql_client, function(api_result, pass, length_limit) {
-		
 		parameters.checkParameters(limit, sortBy, from, to, length_limit, function(limit, sortBy, where) {
 			
 			if (pass == true) {
