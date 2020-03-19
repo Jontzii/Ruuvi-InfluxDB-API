@@ -37,7 +37,7 @@ module.exports = {
                 while (measurements[i] != null) {
                     var temporary = {};
         
-                    temporary['time'] = measurements[i].time.toISOString().substr(0, 19).replace('T', ' ');
+                    temporary['time'] = measurements[i].time.toISOString();
                     temporary['temperature'] = measurements[i].temperature
                     temporary['air_density'] = measurements[i].airDensity
                     temporary['dewpoint'] = measurements[i].dewPoint
