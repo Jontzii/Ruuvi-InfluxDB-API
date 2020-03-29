@@ -41,7 +41,7 @@ const speedLimiter = slowDown({
 app.use(speedLimiter);
 
 // CORS Stuff
-var whitelist = ['http://jontzi.com', 'http://data.jontzi.com']
+var whitelist = ['http://jontzi.com', 'http://data.jontzi.com', 'http://weather.jontzi.com', 'http://localhost:3000']
 var corsOptions = {
 	origin: function (origin, callback) {
 	  if (whitelist.indexOf(origin) !== -1 || !origin) {
@@ -54,7 +54,7 @@ var corsOptions = {
 
 app.use(function(req, res, next) {
 	// Request methods you wish to allow
-    res.setHeader('Access-Control-Allow-Methods', 'GET');
+	res.setHeader('Access-Control-Allow-Methods', 'GET');
 	next();
 })
 
