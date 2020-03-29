@@ -41,7 +41,15 @@ const speedLimiter = slowDown({
 app.use(speedLimiter);
 
 // CORS Stuff
-var whitelist = ['http://jontzi.com', 'http://data.jontzi.com', 'http://weather.jontzi.com', 'http://localhost:3000']
+var whitelist = 
+	[
+		'http://jontzi.com', 
+		'http://data.jontzi.com', 
+		'http://weather.jontzi.com', 
+		'http://localhost:3000',
+		'https://jontzii.github.io/ReactWeather'
+	]
+
 var corsOptions = {
 	origin: function (origin, callback) {
 	  if (whitelist.indexOf(origin) !== -1 || !origin) {
