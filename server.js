@@ -43,11 +43,11 @@ app.use(speedLimiter);
 // CORS Stuff
 var whitelist = 
 	[
-		'http://jontzi.com', 
+		'https://jontzi.com', 
 		'http://data.jontzi.com', 
-		'http://weather.jontzi.com', 
+		'https://weather.jontzi.com', 
 		'http://localhost:3000',
-		'https://jontzii.github.io/ReactWeather'
+		'https://jontzii.github.io'
 	]
 
 var corsOptions = {
