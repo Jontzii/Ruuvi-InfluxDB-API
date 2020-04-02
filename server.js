@@ -38,6 +38,7 @@ const speedLimiter = slowDown({
 	delayAfter: 150, // allow 150 requests per 15 minutes, then...
 	delayMs: 500 // begin adding 500ms of delay per request above 100:
 });
+app.enable("trust proxy");
 app.use(speedLimiter);
 
 // CORS Stuff
