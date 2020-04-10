@@ -47,11 +47,9 @@ data.jontzi.com/weather/api/1/latest?api_key=xx
 Returns latest measured data.
 
 ## TODO List
-- HTTPS Support
-- Optional MySQL/APIkey authorization
+- Change from api key to basic auth
 - Correct url for every result
 - Better "from" and "to"
-- Select what data to return
 
 ## Dependencies
 - [ExpressJS](https://github.com/expressjs/express)
