@@ -1,5 +1,7 @@
 # Influx DB API [![Build Status](https://travis-ci.com/Jontzii/Ruuvi-InfluxDB-API.svg?token=5Bjybdo7LaL3nvzBsFyv&branch=master)](https://travis-ci.com/Jontzii/Ruuvi-InfluxDB-API)
-API that returns values from Influx DB which contains meteorological data measured continuously with Ruuvitag using [RuuviCollector](https://github.com/Scrin/RuuviCollector). I made this project as a simple nodejs/express learning project and it is no longer updated. As it was meant to be a simple learning project many parts (e.g. authentication) of it are implemented pretty poorly.
+API that returns values from Influx DB which contains meteorological data measured continuously with Ruuvitag using [RuuviCollector](https://github.com/Scrin/RuuviCollector). 
+
+I made this project as a simple nodejs/express learning project and it is no longer updated. As it was meant to be a simple learning project many parts (e.g. authentication) of it are implemented pretty poorly.
 
 ## Data
 All data is returned in a JSON-format. The following measurements are measured:
