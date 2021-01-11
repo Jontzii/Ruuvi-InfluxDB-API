@@ -1,13 +1,5 @@
 # Influx DB API [![Build Status](https://travis-ci.com/Jontzii/Ruuvi-InfluxDB-API.svg?token=5Bjybdo7LaL3nvzBsFyv&branch=master)](https://travis-ci.com/Jontzii/Ruuvi-InfluxDB-API)
-API that returns values from Influx DB which contains meteorological data measured continuously with Ruuvitag using [RuuviCollector](https://github.com/Scrin/RuuviCollector). Made mainly to be used with my own weather website/app and as a nodejs/express learning project.
-
-## URL
-data.jontzi.com/weather/api/1?api_key=xx
-
-data.jontzi.com/weather/api/1/latest?api_key=xx
-
-## API Key
-An API key is required to make any calls. Calls made without a proper key will return HTTP 401 Unauthorized. A key can be authorized by adding it to a MySQL table containing the keys. Currently, api-key's only purpose is to block most web scrapers/bots as the website is not secured in any other way. In the future, a better and more secure method will probably be implemented.
+API that returns values from Influx DB which contains meteorological data measured continuously with Ruuvitag using [RuuviCollector](https://github.com/Scrin/RuuviCollector). I made this project as a simple nodejs/express learning project and it is no longer updated. As it was meant to be a simple learning project many parts (e.g. authentication) of it are implemented pretty poorly.
 
 ## Data
 All data is returned in a JSON-format. The following measurements are measured:
@@ -45,11 +37,6 @@ Returns 20 latest measurements sorted from new to old.
 
 data.jontzi.com/weather/api/1/latest?api_key=xx
 Returns latest measured data.
-
-## TODO List
-- Change from api key to basic auth
-- Correct url for every result
-- Better "from" and "to"
 
 ## Dependencies
 - [ExpressJS](https://github.com/expressjs/express)
